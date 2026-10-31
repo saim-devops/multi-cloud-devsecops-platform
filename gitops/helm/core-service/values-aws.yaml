@@ -2,6 +2,11 @@
 cloudProvider: "AWS"
 environment: "production"
 
+image:
+  repository: 336425344916.dkr.ecr.us-east-1.amazonaws.com/core-service
+  tag: latest
+  pullPolicy: Always
+
 serviceAccount:
   create: true
   annotations:

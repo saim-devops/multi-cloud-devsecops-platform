@@ -140,7 +140,7 @@ jobs:
   publish-multi-cloud:
     name: "Publish to AWS ECR, GCP AR & Azure ACR"
     needs: build-and-trivy-scan
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -254,7 +254,7 @@ jobs:
   gitops-sync:
     name: "GitOps Manifest Update (Argo CD Trigger)"
     needs: publish-multi-cloud
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
