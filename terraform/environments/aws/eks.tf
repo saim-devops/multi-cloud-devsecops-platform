@@ -36,6 +36,7 @@ resource "aws_eks_node_group" "spot_nodes" {
   subnet_ids      = aws_subnet.private[*].id
 
   capacity_type  = "SPOT"
+  ami_type       = "AL2023_x86_64_STANDARD"
   instance_types = var.instance_types
 
   scaling_config {
