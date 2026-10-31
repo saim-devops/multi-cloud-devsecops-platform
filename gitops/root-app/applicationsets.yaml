@@ -31,7 +31,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: 'https://github.com/enterprise/multi-cloud-devsecops-platform.git'
+        repoURL: 'https://github.com/saim-devops/multi-cloud-devsecops-platform.git'
         targetRevision: HEAD
         path: gitops/helm/core-service
         helm:

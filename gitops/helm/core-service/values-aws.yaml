@@ -5,7 +5,7 @@ environment: "production"
 serviceAccount:
   create: true
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/core-service-irsa-role"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::336425344916:role/multi-cloud-eks-prod-core-service-irsa-role"
 
 ingress:
   enabled: true
