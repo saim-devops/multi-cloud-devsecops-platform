@@ -7,7 +7,7 @@ environment: "production"
 image:
   repository: ghcr.io/enterprise/core-service
   pullPolicy: IfNotPresent
-  tag: "4efd749daf929fce595aefe1ac31abab3206efe5"
+  tag: "a2fa9502cef3a5d832858aa5bb444287026a07ac"
 
 imagePullSecrets: []
 nameOverride: ""

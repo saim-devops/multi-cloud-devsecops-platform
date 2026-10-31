@@ -4,7 +4,7 @@ environment: "production"
 
 image:
   repository: 336425344916.dkr.ecr.us-east-1.amazonaws.com/core-service
-  tag: latest
+  tag: "a2fa9502cef3a5d832858aa5bb444287026a07ac"
   pullPolicy: Always
 
 serviceAccount:
