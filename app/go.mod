@@ -1,3 +1,4 @@
-module github.com/enterprise/multi-cloud-devsecops-platform/app
+module github.com/saim-devops/multi-cloud-devsecops-platform/app
 
-go 1.22
+go 1.23
+

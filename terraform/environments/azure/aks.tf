@@ -55,10 +55,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "spot_workloads" {
   eviction_policy       = "Delete"
   spot_max_price        = -1 # Pay up to on-demand price
 
-  auto_scaling_enabled  = true
-  min_count             = 1
-  max_count             = 3
-  node_count            = 1
+  auto_scaling_enabled = true
+  min_count            = 1
+  max_count            = 3
+  node_count           = 1
 
   node_labels = {
     "kubernetes.azure.com/scalesetpriority" = "spot"

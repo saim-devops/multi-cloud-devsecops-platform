@@ -12,7 +12,7 @@ resource "kubernetes_namespace" "core_service" {
   metadata {
     name = var.namespace
     labels = {
-      "app.kubernetes.io/part-of" = "multi-cloud-devsecops"
+      "app.kubernetes.io/part-of"          = "multi-cloud-devsecops"
       "pod-security.kubernetes.io/enforce" = "restricted"
       "pod-security.kubernetes.io/audit"   = "restricted"
       "pod-security.kubernetes.io/warn"    = "restricted"
