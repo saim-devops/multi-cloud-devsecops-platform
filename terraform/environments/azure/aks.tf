@@ -24,13 +24,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   default_node_pool {
-    name                 = "systempool"
-    node_count           = 1
-    vm_size              = var.aks_vm_size
-    vnet_subnet_id       = azurerm_subnet.aks_nodes.id
-    os_disk_type         = "Managed"
-    os_disk_size_gb      = 30
-    auto_scaling_enabled = false
+    name                = "systempool"
+    node_count          = 1
+    vm_size             = var.aks_vm_size
+    vnet_subnet_id      = azurerm_subnet.aks_nodes.id
+    os_disk_type        = "Managed"
+    os_disk_size_gb     = 30
+    enable_auto_scaling = false
   }
 
   # Secrets Store CSI Driver Add-On (Validates AZ-400 Key Vault Integration)
@@ -55,10 +55,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "spot_workloads" {
   eviction_policy       = "Delete"
   spot_max_price        = -1 # Pay up to on-demand price
 
-  auto_scaling_enabled = true
-  min_count            = 1
-  max_count            = 3
-  node_count           = 1
+  enable_auto_scaling = true
+  min_count           = 1
+  max_count           = 3
+  node_count          = 1
 
   node_labels = {
     "kubernetes.azure.com/scalesetpriority" = "spot"
