@@ -1,0 +1,53 @@
+name: "Terraform One-Click Teardown (Cost Control)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_cloud:
+        description: "Cloud environment to destroy"
+        required: true
+        default: "aws"
+        type: choice
+        options:
+          - "aws"
+          - "gcp"
+          - "azure"
+          - "all"
+      confirm_destruction:
+        description: "Type 'DESTROY' to confirm destruction"
+        required: true
+
+jobs:
+  destroy-infrastructure:
+    name: "Tear Down ${{ github.event.inputs.target_cloud }}"
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm_destruction == 'DESTROY'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+
+      - name: Destroy AWS Environment
+        if: github.event.inputs.target_cloud == 'aws' || github.event.inputs.target_cloud == 'all'
+        working-directory: terraform/environments/aws
+        run: |
+          echo "Destroying AWS resources..."
+          # terraform init && terraform destroy -auto-approve
+
+      - name: Destroy GCP Environment
+        if: github.event.inputs.target_cloud == 'gcp' || github.event.inputs.target_cloud == 'all'
+        working-directory: terraform/environments/gcp
+        run: |
+          echo "Destroying GCP resources..."
+          # terraform init && terraform destroy -auto-approve
+
+      - name: Destroy Azure Environment
+        if: github.event.inputs.target_cloud == 'azure' || github.event.inputs.target_cloud == 'all'
+        working-directory: terraform/environments/azure
+        run: |
+          echo "Destroying Azure resources..."
+          # terraform init && terraform destroy -auto-approve

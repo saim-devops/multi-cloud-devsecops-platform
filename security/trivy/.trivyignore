@@ -1,0 +1,4 @@
+# Trivy Ignore File - Documented Exceptions and Accepted CVEs
+# Format: CVE-YYYY-XXXXX with comment explaining mitigation or acceptance justification
+# Example:
+# CVE-2023-99999 # Mitigated via network isolation policy in Calico / Cloud Armor

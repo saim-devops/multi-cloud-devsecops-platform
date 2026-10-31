@@ -1,0 +1,7 @@
+aws_region         = "us-east-1"
+environment        = "production"
+cluster_name       = "multi-cloud-eks-prod"
+vpc_cidr           = "10.100.0.0/16"
+eks_version        = "1.30"
+instance_types     = ["t3.medium", "t3a.medium"]
+single_nat_gateway = true

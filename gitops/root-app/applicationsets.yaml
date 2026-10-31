@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-cloud-core-service-appset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - clusterName: aws-eks-production
+            server: https://kubernetes.default.svc # or target EKS cluster API
+            environment: production
+            valuesFile: values-aws.yaml
+            cloud: AWS
+          - clusterName: gcp-gke-production
+            server: https://gke-cluster-api-endpoint
+            environment: production
+            valuesFile: values-gcp.yaml
+            cloud: GCP
+          - clusterName: azure-aks-production
+            server: https://aks-cluster-api-endpoint
+            environment: production
+            valuesFile: values-azure.yaml
+            cloud: Azure
+  template:
+    metadata:
+      name: 'core-service-{{clusterName}}'
+      labels:
+        app.kubernetes.io/part-of: multi-cloud-devsecops
+        cloud.provider: '{{cloud}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/enterprise/multi-cloud-devsecops-platform.git'
+        targetRevision: HEAD
+        path: gitops/helm/core-service
+        helm:
+          valueFiles:
+            - values.yaml
+            - '{{valuesFile}}'
+      destination:
+        server: '{{server}}'
+        namespace: core-service
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

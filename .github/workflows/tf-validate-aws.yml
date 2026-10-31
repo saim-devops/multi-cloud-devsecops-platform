@@ -1,0 +1,37 @@
+name: "Terraform Validate - AWS"
+
+on:
+  pull_request:
+    paths:
+      - "terraform/environments/aws/**"
+      - "terraform/modules/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "terraform/environments/aws/**"
+      - "terraform/modules/**"
+  workflow_dispatch:
+
+jobs:
+  tf-validate-aws:
+    name: "AWS Infrastructure Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/environments/aws
+
+      - name: Terraform Init
+        working-directory: terraform/environments/aws
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: terraform/environments/aws
+        run: terraform validate

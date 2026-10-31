@@ -1,0 +1,37 @@
+name: "Terraform Validate - GCP"
+
+on:
+  pull_request:
+    paths:
+      - "terraform/environments/gcp/**"
+      - "terraform/modules/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "terraform/environments/gcp/**"
+      - "terraform/modules/**"
+  workflow_dispatch:
+
+jobs:
+  tf-validate-gcp:
+    name: "GCP Infrastructure Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/environments/gcp
+
+      - name: Terraform Init
+        working-directory: terraform/environments/gcp
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: terraform/environments/gcp
+        run: terraform validate

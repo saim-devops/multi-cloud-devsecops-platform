@@ -1,0 +1,37 @@
+name: "Terraform Validate - Azure"
+
+on:
+  pull_request:
+    paths:
+      - "terraform/environments/azure/**"
+      - "terraform/modules/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "terraform/environments/azure/**"
+      - "terraform/modules/**"
+  workflow_dispatch:
+
+jobs:
+  tf-validate-azure:
+    name: "Azure Infrastructure Validation (AZ-400)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.8.0"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/environments/azure
+
+      - name: Terraform Init
+        working-directory: terraform/environments/azure
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: terraform/environments/azure
+        run: terraform validate

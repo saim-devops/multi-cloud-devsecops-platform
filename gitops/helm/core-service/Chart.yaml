@@ -1,0 +1,9 @@
+apiVersion: v2
+name: core-service
+description: Production-grade multi-cloud microservice reference chart for AWS, GCP, and Azure
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: DevSecOps Engineering
+    email: devsecops@enterprise.internal
