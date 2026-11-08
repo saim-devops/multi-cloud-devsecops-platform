@@ -4,7 +4,7 @@ environment: "production"
 
 image:
   repository: 336425344916.dkr.ecr.us-east-1.amazonaws.com/core-service
-  tag: "a2fa9502cef3a5d832858aa5bb444287026a07ac"
+  tag: "c8f6937dc306eede10cb99d629f9c25e71a5176f"
   pullPolicy: Always
 
 serviceAccount:
