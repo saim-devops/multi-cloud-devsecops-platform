@@ -4,12 +4,20 @@ resource "azurerm_user_assigned_identity" "aks_identity" {
   location            = azurerm_resource_group.rg.location
 }
 
+resource "azurerm_role_assignment" "aks_vnet_contributor" {
+  scope                = azurerm_virtual_network.vnet.id
+  role_definition_name = "Network Contributor"
+  principal_id         = azurerm_user_assigned_identity.aks_identity.principal_id
+}
+
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.cluster_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "aks-devsecops"
-  kubernetes_version  = "1.29"
+  kubernetes_version  = "1.34"
+
+  depends_on = [azurerm_role_assignment.aks_vnet_contributor]
 
   identity {
     type         = "UserAssigned"
@@ -49,15 +57,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
 resource "azurerm_kubernetes_cluster_node_pool" "spot_workloads" {
   name                  = "spotworkload"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
-  vm_size               = var.aks_vm_size
+  vm_size               = "Standard_D2as_v4"
   vnet_subnet_id        = azurerm_subnet.aks_nodes.id
   priority              = "Spot"
   eviction_policy       = "Delete"
   spot_max_price        = -1 # Pay up to on-demand price
 
-  enable_auto_scaling = true
-  min_count           = 1
-  max_count           = 3
+  enable_auto_scaling = false
   node_count          = 1
 
   node_labels = {

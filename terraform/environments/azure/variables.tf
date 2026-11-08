@@ -24,6 +24,6 @@ variable "vnet_address_space" {
 
 variable "aks_vm_size" {
   type        = string
-  default     = "Standard_B2s"
-  description = "AKS Node VM size (Standard_B2s or Standard_D2as_v4 for Spot)"
+  default     = "Standard_D2s_v4"
+  description = "AKS Node VM size (Standard_D2s_v4 or Standard_D2as_v4 for Spot)"
 }

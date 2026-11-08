@@ -194,10 +194,14 @@ jobs:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $REGISTRY/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $REGISTRY/${{ env.IMAGE_NAME }}:latest
-          docker push $REGISTRY/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
+          if aws ecr describe-repositories --repository-names "${{ env.IMAGE_NAME }}" --region "${{ env.AWS_REGION }}" >/dev/null 2>&1; then
+            docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $REGISTRY/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $REGISTRY/${{ env.IMAGE_NAME }}:latest
+            docker push $REGISTRY/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            docker push $REGISTRY/${{ env.IMAGE_NAME }}:latest
+          else
+            echo "AWS ECR repository ${{ env.IMAGE_NAME }} not active (environment torn down). Skipping AWS push."
+          fi
 
       # --- Google Cloud Artifact Registry Publishing (via Workload Identity) ---
       - name: Authenticate to Google Cloud
@@ -249,8 +253,11 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           ACR_IMAGE="${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          ACR_LATEST="${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest"
           docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $ACR_IMAGE
+          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} $ACR_LATEST
           docker push $ACR_IMAGE
+          docker push $ACR_LATEST
 
   # =========================================================================
   # 5. GitOps Automation: Commit New Image Tag to Argo CD Repo
@@ -270,12 +277,13 @@ jobs:
         run: |
           sed -i 's/tag: .*/tag: "${{ github.sha }}"/' gitops/helm/core-service/values.yaml
           sed -i 's/tag: .*/tag: "${{ github.sha }}"/' gitops/helm/core-service/values-aws.yaml
+          sed -i 's/tag: .*/tag: "${{ github.sha }}"/' gitops/helm/core-service/values-azure.yaml
 
       - name: Commit and Push GitOps Manifest Change
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add gitops/helm/core-service/values.yaml gitops/helm/core-service/values-aws.yaml
+          git add gitops/helm/core-service/values.yaml gitops/helm/core-service/values-aws.yaml gitops/helm/core-service/values-azure.yaml
           if git diff --staged --quiet; then
             echo "No change in GitOps tag. Skipping commit."
           else
