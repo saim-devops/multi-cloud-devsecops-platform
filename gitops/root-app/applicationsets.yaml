@@ -7,18 +7,8 @@ spec:
   generators:
     - list:
         elements:
-          - clusterName: aws-eks-production
-            server: https://kubernetes.default.svc # or target EKS cluster API
-            environment: production
-            valuesFile: values-aws.yaml
-            cloud: AWS
-          - clusterName: gcp-gke-production
-            server: https://gke-cluster-api-endpoint
-            environment: production
-            valuesFile: values-gcp.yaml
-            cloud: GCP
           - clusterName: azure-aks-production
-            server: https://aks-cluster-api-endpoint
+            server: https://kubernetes.default.svc
             environment: production
             valuesFile: values-azure.yaml
             cloud: Azure

@@ -16,11 +16,11 @@ ingress:
   enabled: false
 
 keyVaultCsi:
-  enabled: false
+  enabled: true
   provider: azure
   keyvaultName: "kv-saim-devsecops-prod"
   tenantId: "f64aa331-c257-49e7-a9f2-a2e997d84429"
-  userAssignedIdentityID: "00000000-0000-0000-0000-000000000000"
+  userAssignedIdentityID: "af658475-0ee5-471c-9e31-f5d600bb2d76"
   secretObjects:
     - secretName: "db-credentials"
       type: "Opaque"
