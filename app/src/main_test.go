@@ -127,6 +127,26 @@ func TestMetricsHandler(t *testing.T) {
 	}
 }
 
+func TestDashboardHandler(t *testing.T) {
+	router := NewRouter()
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatalf("Failed to create request: %v", err)
+	}
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	body := rr.Body.String()
+	if !strings.Contains(body, "AEGIS CLOUD") {
+		t.Errorf("Expected dashboard HTML to contain 'AEGIS CLOUD'")
+	}
+}
+
 func TestNotFound(t *testing.T) {
 	router := NewRouter()
 	req, err := http.NewRequest("GET", "/non-existent-endpoint", nil)

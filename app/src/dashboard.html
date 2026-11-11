@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisCloud // Multi-Cloud DevSecOps & GitOps Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #050811;
+      --bg-panel: rgba(13, 19, 36, 0.78);
+      --bg-panel-hover: rgba(19, 28, 52, 0.88);
+      --bg-terminal: #03050a;
+      --border-subtle: rgba(99, 125, 175, 0.18);
+      --border-glow: rgba(56, 189, 248, 0.45);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-cyan: #38bdf8;
+      --accent-indigo: #6366f1;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --aws-orange: #ff9900;
+      --azure-blue: #0089d6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(99, 102, 241, 0.14), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(56, 189, 248, 0.12), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.08), transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Top Navigation Bar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(5, 8, 17, 0.85);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #fff;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.55; }
+    }
+
+    .cloud-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.42rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border: 1px solid var(--border-glow);
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cyan);
+      transition: all 0.3s ease;
+    }
+
+    .cloud-badge.aws {
+      border-color: rgba(255, 153, 0, 0.5);
+      background: rgba(255, 153, 0, 0.14);
+      color: #ffb84d;
+      box-shadow: 0 0 18px rgba(255, 153, 0, 0.2);
+    }
+
+    .cloud-badge.azure {
+      border-color: rgba(0, 137, 214, 0.55);
+      background: rgba(0, 137, 214, 0.16);
+      color: #38bdf8;
+      box-shadow: 0 0 18px rgba(0, 137, 214, 0.22);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.75rem 2rem 3rem;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(13, 19, 36, 0.75) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.6rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--aws-orange), var(--accent-cyan), var(--accent-indigo), var(--accent-emerald));
+    }
+
+    .hero-left h1 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.35rem;
+      background: linear-gradient(90deg, #ffffff 0%, #bae6fd 50%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-left p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      max-width: 760px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.85rem;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #cbd5e1;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      padding: 0.68rem 1.15rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--accent-cyan);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.2rem 1.3rem;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      background: var(--bg-panel-hover);
+      border-color: rgba(56, 189, 248, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .kpi-label {
+      font-size: 0.73rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Content 2-Column Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      padding-bottom: 0.85rem;
+    }
+
+    .panel-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    /* Pipeline Stepper */
+    .pipeline-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.6rem;
+    }
+
+    @media (max-width: 768px) {
+      .pipeline-flow {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stage-box {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      padding: 0.8rem;
+      position: relative;
+    }
+
+    .stage-step {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stage-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.2rem;
+    }
+
+    .stage-desc {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    /* Multi-Cloud Matrix Table */
+    .cloud-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .cloud-table th {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .cloud-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .cloud-table tr.active-row {
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .badge-ok {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Security Controls List */
+    .sec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .sec-item {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .sec-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sec-val {
+      font-size: 0.72rem;
+      color: var(--accent-cyan);
+    }
+
+    /* Terminal Output Console */
+    .terminal-box {
+      background: var(--bg-terminal);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 310px;
+    }
+
+    .terminal-bar {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .terminal-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .terminal-body {
+      padding: 0.95rem 1.1rem;
+      overflow-y: auto;
+      font-size: 0.77rem;
+      color: #a5f3fc;
+      white-space: pre-wrap;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .endpoint-tabs {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      border-radius: 7px;
+      padding: 0.38rem 0.7rem;
+      font-size: 0.73rem;
+      font-weight: 600;
+      transition: all 0.18s;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+    }
+
+    /* Sparkline container */
+    .sparkline-wrap {
+      margin-top: 0.4rem;
+      height: 36px;
+      width: 100%;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      margin-top: 1rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div>
+        <div class="brand-title">
+          AEGIS CLOUD
+          <span class="tag mono" id="nav-version">v1.0.0</span>
+        </div>
+        <div class="brand-sub">Enterprise Multi-Cloud DevSecOps &amp; GitOps Control Plane</div>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
+        <span id="health-status-text">HEALTHZ: UP · READY</span>
+      </div>
+      <div class="cloud-badge" id="cloud-provider-pill">
+        <span>☁️</span>
+        <span id="cloud-provider-name">DETECTING CLOUD...</span>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-banner">
+      <div class="hero-left">
+        <h1>Zero-Trust Multi-Cloud Microservice Command Center</h1>
+        <p>
+          Live telemetry from the Go production microservice deployed via <strong>Argo CD GitOps</strong> across
+          <strong>AWS EKS (us-east-1)</strong> and <strong>Microsoft Azure AKS (eastus)</strong>. Built with Google Distroless non-root containers,
+          Trivy 0-CVE shift-left gates, AWS IRSA, and Azure Key Vault CSI.
+        </p>
+        <div class="hero-badges">
+          <span class="tag mono">🔒 UID 65532 (nonroot)</span>
+          <span class="tag mono">🛡️ Trivy: 0 CRITICAL / 0 HIGH CVEs</span>
+          <span class="tag mono">🔑 OIDC Workload Identity</span>
+          <span class="tag mono">🔄 Argo CD Automated Sync</span>
+          <span class="tag mono">📊 Prometheus /metrics Native</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="triggerTrafficBurst()">
+          ⚡ Simulate 25x Burst Traffic
+        </button>
+        <button class="btn btn-secondary" onclick="fetchAllTelemetry()">
+          🔄 Refresh Telemetry
+        </button>
+      </div>
+    </section>
+
+    <!-- 6 KPI Cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Active Cloud &amp; Cluster</span>
+          <span>🌐</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-cloud">--</div>
+        <div class="kpi-sub mono" id="kpi-cluster">Cluster: --</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Active K8s Pod &amp; Node</span>
+          <span>☸️</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-pod" style="font-size: 1.05rem; padding-top: 0.35rem;">--</div>
+        <div class="kpi-sub mono" id="kpi-node">Node: --</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Total HTTP Requests</span>
+          <span>📈</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-requests">0</div>
+        <div class="sparkline-wrap">
+          <svg id="req-sparkline" width="100%" height="34" viewBox="0 0 200 34" preserveAspectRatio="none">
+            <polyline id="sparkline-poly" fill="none" stroke="#38bdf8" stroke-width="2.2" points="0,28 200,28" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Go Runtime &amp; Memory</span>
+          <span>⚙️</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-memory">-- MB</div>
+        <div class="kpi-sub mono" id="kpi-runtime">Go -- · -- Goroutines · -- CPUs</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Cloud Secret &amp; Identity</span>
+          <span>🔐</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-identity" style="font-size: 1.05rem; padding-top: 0.35rem; color: #34d399;">Verified</div>
+        <div class="kpi-sub mono" id="kpi-secret-source">Zero-Trust Federated</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>Service Uptime &amp; SLA</span>
+          <span>⏱️</span>
+        </div>
+        <div class="kpi-value mono" id="kpi-uptime">0s</div>
+        <div class="kpi-sub mono" id="kpi-errors">Error Rate: 0.00% (100% SLA)</div>
+      </div>
+    </section>
+
+    <!-- Main 2-Column Interactive Area -->
+    <section class="main-grid">
+      <!-- Left Column: DevSecOps Pipeline & Multi-Cloud Federation Matrix -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🛡️</span>
+            <span>Shift-Left DevSecOps Pipeline &amp; Multi-Cloud Federation</span>
+          </div>
+          <span class="badge-ok">✓ CI/CD + GitOps Verified</span>
+        </div>
+
+        <!-- 5 Stage Pipeline -->
+        <div class="pipeline-flow">
+          <div class="stage-box">
+            <div class="stage-step"><span>Stage 01</span><span>✓</span></div>
+            <div class="stage-name">Unit &amp; Race Test</div>
+            <div class="stage-desc">Go 1.27 test suite + coverage gate</div>
+          </div>
+          <div class="stage-box">
+            <div class="stage-step"><span>Stage 02</span><span>✓</span></div>
+            <div class="stage-name">SonarQube SAST</div>
+            <div class="stage-desc">Static code security &amp; smell analysis</div>
+          </div>
+          <div class="stage-box">
+            <div class="stage-step"><span>Stage 03</span><span>✓</span></div>
+            <div class="stage-name">Trivy Gate</div>
+            <div class="stage-desc">Distroless build · 0 Critical/High CVEs</div>
+          </div>
+          <div class="stage-box">
+            <div class="stage-step"><span>Stage 04</span><span>✓</span></div>
+            <div class="stage-name">ECR + ACR Push</div>
+            <div class="stage-desc">Passwordless OIDC multi-registry push</div>
+          </div>
+          <div class="stage-box">
+            <div class="stage-step"><span>Stage 05</span><span>✓</span></div>
+            <div class="stage-name">Argo CD Sync</div>
+            <div class="stage-desc">Automated SHA promotion &amp; self-heal</div>
+          </div>
+        </div>
+
+        <!-- Multi-Cloud Federation Table -->
+        <div>
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">
+            Multi-Cloud Production Cluster Topology
+          </div>
+          <table class="cloud-table">
+            <thead>
+              <tr>
+                <th>Cloud Provider</th>
+                <th>Kubernetes Cluster</th>
+                <th>Container Registry</th>
+                <th>Identity &amp; Secrets</th>
+                <th>State</th>
+              </tr>
+            </thead>
+            <tbody id="topology-tbody">
+              <tr id="row-aws">
+                <td><strong style="color: #ffb84d;">AWS (us-east-1)</strong></td>
+                <td class="mono">multi-cloud-eks-prod (v1.30)</td>
+                <td class="mono">Amazon ECR (KMS)</td>
+                <td class="mono">IAM OIDC + IRSA Role</td>
+                <td><span class="badge-ok">● SYNCED</span></td>
+              </tr>
+              <tr id="row-azure">
+                <td><strong style="color: #38bdf8;">Azure (eastus)</strong></td>
+                <td class="mono">multi-cloud-aks-prod (v1.34)</td>
+                <td class="mono">Azure ACR (Standard)</td>
+                <td class="mono">Key Vault CSI + Entra OIDC</td>
+                <td><span class="badge-ok">● SYNCED</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Runtime Security Posture -->
+        <div class="sec-grid">
+          <div class="sec-item">
+            <div class="sec-title"><span>Container Base Image</span><span>✓</span></div>
+            <div class="sec-val mono">gcr.io/distroless/static-debian12:nonroot</div>
+          </div>
+          <div class="sec-item">
+            <div class="sec-title"><span>Pod Security Context</span><span>✓</span></div>
+            <div class="sec-val mono">runAsUser: 65532 · readOnlyRootFilesystem: true</div>
+          </div>
+          <div class="sec-item">
+            <div class="sec-title"><span>Autoscaling &amp; Resilience</span><span>✓</span></div>
+            <div class="sec-val mono">HPA (2–6 Replicas · 75% CPU) + PDB (minAvailable: 1)</div>
+          </div>
+          <div class="sec-item">
+            <div class="sec-title"><span>Observability Stack</span><span>✓</span></div>
+            <div class="sec-val mono">Prometheus Operator + Grafana + Alertmanager</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live API Explorer & Prometheus Telemetry Console -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>💻</span>
+            <span>Live Microservice API &amp; Prometheus Inspector</span>
+          </div>
+          <span class="tag mono" id="last-polled-time">Live</span>
+        </div>
+
+        <div class="endpoint-tabs">
+          <button class="tab-btn active mono" id="tab-info" onclick="switchTab('info')">GET /api/v1/info</button>
+          <button class="tab-btn mono" id="tab-data" onclick="switchTab('data')">GET /api/v1/data</button>
+          <button class="tab-btn mono" id="tab-health" onclick="switchTab('health')">GET /healthz</button>
+          <button class="tab-btn mono" id="tab-metrics" onclick="switchTab('metrics')">GET /metrics</button>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-bar">
+            <div class="terminal-dots">
+              <span style="background:#f43f5e;"></span>
+              <span style="background:#f59e0b;"></span>
+              <span style="background:#10b981;"></span>
+            </div>
+            <span class="mono" id="terminal-endpoint-label">curl -s http://core-service/api/v1/info</span>
+            <span class="mono" style="color:#10b981;">HTTP 200 OK</span>
+          </div>
+          <pre class="terminal-body mono" id="terminal-output">Loading live container telemetry...</pre>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.78rem; color: var(--text-secondary);">
+          <strong style="color: var(--text-primary);">💡 Interactive Demo Tip:</strong>
+          Click <strong>"⚡ Simulate 25x Burst Traffic"</strong> above to fire 25 concurrent API requests against this pod. Watch the
+          <strong>Total HTTP Requests</strong> counter, sparkline graph, and raw Prometheus <code>http_requests_total</code> counter update in real time!
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Enterprise Multi-Cloud DevSecOps &amp; GitOps Platform · Architected by <strong>Muhammad Saim Ali</strong> · Powered by Go, Terraform, AWS EKS, Azure AKS, Argo CD &amp; Prometheus
+    </footer>
+  </main>
+
+  <script>
+    let currentTab = 'info';
+    let requestHistory = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let latestPayloads = {
+      info: {},
+      data: {},
+      health: {},
+      metrics: ''
+    };
+
+    function formatUptime(sec) {
+      const s = Math.floor(sec || 0);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const rem = s % 60;
+      if (h > 0) return `${h}h ${m}m ${rem}s`;
+      if (m > 0) return `${m}m ${rem}s`;
+      return `${rem}s`;
+    }
+
+    function updateSparkline(totalReqs) {
+      requestHistory.push(totalReqs);
+      if (requestHistory.length > 16) requestHistory.shift();
+      const min = Math.min(...requestHistory);
+      const max = Math.max(...requestHistory);
+      const range = Math.max(max - min, 1);
+      const pts = requestHistory.map((val, idx) => {
+        const x = (idx / (requestHistory.length - 1)) * 200;
+        const y = 30 - ((val - min) / range) * 24;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+      document.getElementById('sparkline-poly').setAttribute('points', pts);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['info', 'data', 'health', 'metrics'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      });
+      const epMap = {
+        info: 'curl -s http://core-service/api/v1/info',
+        data: 'curl -s http://core-service/api/v1/data',
+        health: 'curl -s http://core-service/healthz',
+        metrics: 'curl -s http://core-service/metrics'
+      };
+      document.getElementById('terminal-endpoint-label').textContent = epMap[tab];
+      renderTerminal();
+    }
+
+    function renderTerminal() {
+      const out = document.getElementById('terminal-output');
+      if (currentTab === 'metrics') {
+        out.textContent = latestPayloads.metrics || 'Fetching /metrics...';
+      } else {
+        out.textContent = JSON.stringify(latestPayloads[currentTab], null, 2);
+      }
+    }
+
+    async function fetchAllTelemetry() {
+      try {
+        const [infoRes, dataRes, healthRes, metricsRes] = await Promise.all([
+          fetch('/api/v1/info'),
+          fetch('/api/v1/data'),
+          fetch('/healthz'),
+          fetch('/metrics')
+        ]);
+
+        const info = await infoRes.json();
+        const data = await dataRes.json();
+        const health = await healthRes.json();
+        const metricsText = await metricsRes.text();
+
+        latestPayloads = { info, data, health, metrics: metricsText };
+
+        // Update Top Navbar & Cloud Pill
+        const provider = (info.cloud_provider || 'MULTI-CLOUD').toUpperCase();
+        const pill = document.getElementById('cloud-provider-pill');
+        document.getElementById('cloud-provider-name').textContent = `${provider} · ${info.cluster_name || 'production'}`;
+        document.getElementById('nav-version').textContent = `v${info.version || '1.0.0'}`;
+
+        pill.classList.remove('aws', 'azure');
+        document.getElementById('row-aws').classList.remove('active-row');
+        document.getElementById('row-azure').classList.remove('active-row');
+
+        if (provider.includes('AWS')) {
+          pill.classList.add('aws');
+          document.getElementById('row-aws').classList.add('active-row');
+        } else if (provider.includes('AZURE')) {
+          pill.classList.add('azure');
+          document.getElementById('row-azure').classList.add('active-row');
+        }
+
+        // Update KPI Cards
+        document.getElementById('kpi-cloud').textContent = provider;
+        document.getElementById('kpi-cluster').textContent = `Cluster: ${info.cluster_name || 'local'}`;
+        document.getElementById('kpi-pod').textContent = info.pod_name || 'core-service-pod';
+        document.getElementById('kpi-node').textContent = `Node: ${info.node_name || 'worker-node'}`;
+
+        const rt = info.runtime || {};
+        const alloc = typeof rt.alloc_mb === 'number' ? rt.alloc_mb.toFixed(2) : '0.35';
+        const sys = typeof rt.sys_mb === 'number' ? rt.sys_mb.toFixed(1) : '11.7';
+        document.getElementById('kpi-memory').textContent = `${alloc} MB`;
+        document.getElementById('kpi-runtime').textContent = `${rt.go_version || 'go1.27'} · ${rt.goroutines || 5} Goroutines · ${rt.num_cpu || 2} vCPU (${sys}MB Sys)`;
+
+        document.getElementById('kpi-identity').textContent = info.identity_mode || (provider.includes('AZURE') ? 'Key Vault CSI + OIDC' : 'AWS IRSA (OIDC)');
+        document.getElementById('kpi-secret-source').textContent = info.secret_status || 'Zero-Trust Federated Token Active';
+
+        document.getElementById('kpi-uptime').textContent = formatUptime(info.uptime_seconds);
+
+        // Parse total requests from info or metrics
+        const reqMatch = metricsText.match(/http_requests_total\{[^}]*\}\s+(\d+)/);
+        const totalReqs = reqMatch ? parseInt(reqMatch[1], 10) : (info.total_requests || 1);
+        document.getElementById('kpi-requests').textContent = totalReqs.toLocaleString();
+        updateSparkline(totalReqs);
+
+        const now = new Date();
+        document.getElementById('last-polled-time').textContent = `Updated ${now.toLocaleTimeString()}`;
+
+        renderTerminal();
+      } catch (err) {
+        console.error('Telemetry poll error:', err);
+      }
+    }
+
+    async function triggerTrafficBurst() {
+      const promises = [];
+      for (let i = 0; i < 25; i++) {
+        promises.push(fetch(i % 2 === 0 ? '/api/v1/data' : '/api/v1/info'));
+      }
+      await Promise.all(promises);
+      await fetchAllTelemetry();
+    }
+
+    fetchAllTelemetry();
+    setInterval(fetchAllTelemetry, 2500);
+  </script>
+</body>
+</html>

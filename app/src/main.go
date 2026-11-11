@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,14 +11,18 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
 )
 
+//go:embed dashboard.html
+var dashboardHTML []byte
+
 var (
-	version       = "1.0.0"
+	version       = "2.0.0"
 	startTime     = time.Now()
 	requestCount  uint64
 	errorCount    uint64
@@ -106,10 +111,33 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+func detectSecurityPosture() (string, string) {
+	p := strings.ToLower(cloudProvider)
+	secretMounted := false
+	if _, err := os.Stat("/mnt/secrets-store/DB-PASSWORD"); err == nil {
+		secretMounted = true
+	} else if _, err := os.Stat("/mnt/secrets-store"); err == nil {
+		secretMounted = true
+	}
+
+	if strings.Contains(p, "aws") || os.Getenv("AWS_WEB_IDENTITY_TOKEN_FILE") != "" {
+		return "IRSA (OIDC WebIdentity)", "KMS Envelope + Secrets CSI"
+	}
+	if strings.Contains(p, "azure") {
+		if secretMounted {
+			return "Entra Workload Identity", "Key Vault CSI Mounted (/mnt/secrets-store)"
+		}
+		return "Entra Managed Identity", "Azure Key Vault CSI Ready"
+	}
+	return "K8s ServiceAccount Token", "Zero-Trust Distroless Runtime"
+}
+
 func infoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
+
+	idMode, secStatus := detectSecurityPosture()
 
 	resp := map[string]interface{}{
 		"service":        "multi-cloud-core-service",
@@ -119,6 +147,9 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 		"environment":    environment,
 		"pod_name":       podName,
 		"node_name":      nodeName,
+		"identity_mode":  idMode,
+		"secret_status":  secStatus,
+		"total_requests": atomic.LoadUint64(&requestCount),
 		"runtime": map[string]interface{}{
 			"go_version": runtime.Version(),
 			"num_cpu":    runtime.NumCPU(),
@@ -137,20 +168,20 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			"id":       "svc-aws-01",
 			"provider": "AWS",
-			"tier":     "EKS Managed NodeGroup (Spot)",
+			"tier":     "EKS v1.30 Managed NodeGroup (t3.medium Spot)",
 			"status":   "ACTIVE",
 		},
 		{
-			"id":       "svc-gcp-02",
-			"provider": "GCP",
-			"tier":     "GKE Standard Cluster (Preemptible)",
-			"status":   "ACTIVE",
-		},
-		{
-			"id":       "svc-azure-03",
+			"id":       "svc-azure-02",
 			"provider": "Azure",
-			"tier":     "AKS Azure CNI (Standard_B2s)",
+			"tier":     "AKS v1.34 Azure CNI (Standard_D2s_v4 + Spot)",
 			"status":   "ACTIVE",
+		},
+		{
+			"id":       "svc-gcp-03",
+			"provider": "GCP",
+			"tier":     "GKE v1.29 Standard Cluster (IaC Ready / Standby)",
+			"status":   "STANDBY",
 		},
 	}
 
@@ -225,18 +256,23 @@ func NewRouter() http.Handler {
 	mux.HandleFunc("/api/v1/data", dataHandler)
 	mux.HandleFunc("/metrics", metricsHandler)
 
-	// Fallback 404
+	// Serve Embedded AegisCloud Web Dashboard on "/" and 404 on unknown paths
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{
-			"message": "Welcome to Enterprise Multi-Cloud DevSecOps Platform API",
-			"status":  "ONLINE",
-			"docs":    "/api/v1/info",
-		})
+		if strings.Contains(r.Header.Get("Accept"), "application/json") && r.URL.Query().Get("format") == "json" {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]string{
+				"message": "Welcome to AegisCloud Enterprise Multi-Cloud DevSecOps Platform",
+				"status":  "ONLINE",
+				"docs":    "/api/v1/info",
+			})
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write(dashboardHTML)
 	})
 
 	return loggingAndMetricsMiddleware(mux)
