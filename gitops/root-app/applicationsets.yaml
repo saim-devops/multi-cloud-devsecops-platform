@@ -7,6 +7,11 @@ spec:
   generators:
     - list:
         elements:
+          - clusterName: aws-eks-production
+            server: https://08B7BDBF2732E9AEE11C71127565E432.gr7.us-east-1.eks.amazonaws.com
+            environment: production
+            valuesFile: values-aws.yaml
+            cloud: AWS
           - clusterName: azure-aks-production
             server: https://kubernetes.default.svc
             environment: production

@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: core-service-aws-eks-production
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: multi-cloud-devsecops
+    cloud.provider: AWS
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/saim-devops/multi-cloud-devsecops-platform.git'
+    targetRevision: HEAD
+    path: gitops/helm/core-service
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-aws.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: core-service
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
