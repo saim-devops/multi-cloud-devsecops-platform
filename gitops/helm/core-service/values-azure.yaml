@@ -20,7 +20,7 @@ keyVaultCsi:
   provider: azure
   keyvaultName: "kv-saim-devsecops-prod"
   tenantId: "f64aa331-c257-49e7-a9f2-a2e997d84429"
-  userAssignedIdentityID: "af658475-0ee5-471c-9e31-f5d600bb2d76"
+  userAssignedIdentityID: "1787298f-88a5-4b69-b7b1-eea4b4f49d5c"
   secretObjects:
     - secretName: "db-credentials"
       type: "Opaque"

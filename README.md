@@ -1,10 +1,10 @@
 # Enterprise Multi-Cloud DevSecOps & GitOps Reference Platform
 ### Automated Infrastructure as Code, Shift-Left DevSecOps, and Multi-Cluster GitOps Delivery across AWS (EKS), GCP (GKE), and Azure (AKS)
 
-[![CI/CD DevSecOps Gate](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/ci-devsecops.yml/badge.svg)](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/ci-devsecops.yml)
-[![Terraform AWS](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-aws.yml/badge.svg)](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-aws.yml)
-[![Terraform GCP](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-gcp.yml/badge.svg)](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-gcp.yml)
-[![Terraform Azure](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-azure.yml/badge.svg)](https://github.com/enterprise/multi-cloud-devsecops-platform/actions/workflows/tf-validate-azure.yml)
+[![CI/CD DevSecOps Gate](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/ci-devsecops.yml/badge.svg)](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/ci-devsecops.yml)
+[![Terraform AWS](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-aws.yml/badge.svg)](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-aws.yml)
+[![Terraform GCP](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-gcp.yml/badge.svg)](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-gcp.yml)
+[![Terraform Azure](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-azure.yml/badge.svg)](https://github.com/saim-devops/multi-cloud-devsecops-platform/actions/workflows/tf-validate-azure.yml)
 [![Security Policy: Zero-Trust](https://img.shields.io/badge/Security-Zero--Trust-blueviolet.svg)](#security--shift-left-devsecops)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -97,9 +97,10 @@ multi-cloud-devsecops-platform/
 │       ├── tf-validate-gcp.yml          # Terraform format & validation for GCP
 │       ├── tf-validate-azure.yml        # Terraform format & validation for Azure (AZ-400)
 │       └── terraform-destroy.yml        # One-click manual cloud teardown workflow
-├── app/                                 # Cloud-Native Go Microservice
+├── app/                                 # Cloud-Native Go Microservice + AegisCloud Web UI
 │   ├── src/
-│   │   ├── main.go                      # Endpoints: /healthz, /ready, /metrics, /api/v1/info, /api/v1/data
+│   │   ├── main.go                      # Embedded UI (/), /healthz, /ready, /metrics, /api/v1/info, /api/v1/data
+│   │   ├── dashboard.html               # AegisCloud Multi-Cloud DevSecOps & GitOps Command Center Web App
 │   │   └── main_test.go                 # Full unit test coverage & HTTP recording
 │   ├── go.mod
 │   ├── Dockerfile                       # Multi-stage build with Google Distroless non-root
