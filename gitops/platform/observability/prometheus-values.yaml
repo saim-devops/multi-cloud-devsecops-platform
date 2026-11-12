@@ -63,7 +63,16 @@ grafana:
       value: "spot"
       effect: "NoSchedule"
   ingress:
-    enabled: false
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - grafana.saimm.online
+    tls:
+      - secretName: grafana-saimm-online-tls
+        hosts:
+          - grafana.saimm.online
 
 prometheus:
   prometheusSpec:

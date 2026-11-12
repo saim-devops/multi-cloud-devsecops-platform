@@ -13,7 +13,20 @@ serviceAccount:
     azure.workload.identity/client-id: "6c55814a-9ec3-4533-9a16-ac76d1e31d39"
 
 ingress:
-  enabled: false
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: azure.saimm.online
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: azure-saimm-online-tls
+      hosts:
+        - azure.saimm.online
 
 keyVaultCsi:
   enabled: true

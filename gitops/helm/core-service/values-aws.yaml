@@ -13,7 +13,20 @@ serviceAccount:
     eks.amazonaws.com/role-arn: "arn:aws:iam::336425344916:role/multi-cloud-eks-prod-core-service-irsa-role"
 
 ingress:
-  enabled: false
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: aws.saimm.online
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: aws-saimm-online-tls
+      hosts:
+        - aws.saimm.online
 
 env:
   - name: CLOUD_PROVIDER
