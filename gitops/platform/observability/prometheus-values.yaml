@@ -12,6 +12,12 @@ defaultRules:
     prometheus: true
 
 alertmanager:
+  alertmanagerSpec:
+    tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
   config:
     global:
       resolve_timeout: 5m
@@ -51,9 +57,43 @@ server:
 grafana:
   enabled: true
   adminPassword: "AdminDevSecOpsSecure2026!"
+  tolerations:
+    - key: "kubernetes.azure.com/scalesetpriority"
+      operator: "Equal"
+      value: "spot"
+      effect: "NoSchedule"
   ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-    hosts:
-      - grafana.devsecops.internal
+    enabled: false
+
+prometheus:
+  prometheusSpec:
+    tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+
+prometheusOperator:
+  tolerations:
+    - key: "kubernetes.azure.com/scalesetpriority"
+      operator: "Equal"
+      value: "spot"
+      effect: "NoSchedule"
+  admissionWebhooks:
+    patch:
+      tolerations:
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"
+
+kube-state-metrics:
+  tolerations:
+    - key: "kubernetes.azure.com/scalesetpriority"
+      operator: "Equal"
+      value: "spot"
+      effect: "NoSchedule"
+
+prometheus-node-exporter:
+  tolerations:
+    - operator: "Exists"

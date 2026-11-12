@@ -35,3 +35,9 @@ env:
     value: "aks-production-cluster"
   - name: PORT
     value: "8080"
+
+tolerations:
+  - key: "kubernetes.azure.com/scalesetpriority"
+    operator: "Equal"
+    value: "spot"
+    effect: "NoSchedule"
